@@ -4,6 +4,8 @@ namespace shgysk8zer0\Sockets;
 
 class SocketServer
 {
+	const DEFAULT_PORT = 4444;
+	const DEFAULT_ADDRESS = '127.0.0.1';
 
 	protected $sockServer;
 	protected $address;
@@ -11,7 +13,10 @@ class SocketServer
 	protected $_listenLoop;
 	protected $connectionHandler;
 
-	public function __construct($port = 4444, $address = '127.0.0.1')
+	public function __construct(
+		$port = self::DEFAULT_PORT,
+		$address = self::DEFAULT_ADDRESS
+	)
 	{
 		$this->address = $address;
 		$this->port = $port;
@@ -27,7 +32,7 @@ class SocketServer
 	private function _createSocket()
 	{
 		$this->sockServer = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-		if( $this->sockServer === false ) {
+		if ($this->sockServer === false) {
 			throw new SocketException(
 				SocketException::CANT_CREATE_SOCKET,
 				socket_strerror(socket_last_error()) );
@@ -52,7 +57,7 @@ class SocketServer
 
 	public function listen()
 	{
-		if( socket_listen($this->sockServer, 5) === false) {
+		if (socket_listen($this->sockServer, 5) === false) {
 			throw new SocketException(
 				SocketException::CANT_BIND_SOCKET,
 				socket_strerror(socket_last_error($this->sockServer)));
@@ -82,14 +87,7 @@ class SocketServer
 
 			$socketClient = new SocketClient($client);
 
-			if (is_array($this->connectionHandler)) {
-				$object = $this->connectionHandler[0];
-				$method = $this->connectionHandler[1];
-				$object->$method($socketClient);
-			} else {
-				$function = $this->connectionHandler;
-				$function($socketClient);
-			}
+			call_user_func($this->connectionHandler, $socketClient);
 		}
 	}
 

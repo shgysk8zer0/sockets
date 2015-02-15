@@ -12,7 +12,10 @@ class SocketServerBroadcast extends SocketServer
 
 	private $connections = array();
 
-	public function __construct($port = 4444, $address = '127.0.0.1')
+	public function __construct(
+		$port = parent::DEFAULT_PORT,
+		$address = parent::DEFAULT_ADDRESS
+	)
 	{
 		parent::__construct($port, $address);
 		$this->pid = posix_getpid();
@@ -30,7 +33,7 @@ class SocketServerBroadcast extends SocketServer
 		$header = fread($this->pipe, 4);
 		$len = $this->bytesToInt( $header );
 
-		$message = unserialize(fread( $this->pipe, $len));
+		$message = unserialize(fread($this->pipe, $len));
 
 		if ($message['type'] == 'msg') {
 			$client = $this->connections[$message['pid']];
@@ -79,14 +82,7 @@ class SocketServerBroadcast extends SocketServer
 
 			$socketClient = new SocketClientBroadcast($client, $this);
 
-			if (is_array($this->connectionHandler)) {
-				$object = $this->connectionHandler[0];
-				$method = $this->connectionHandler[1];
-				$childPid = $object->$method($socketClient);
-			} else {
-				$function = $this->connectionHandler;
-				$childPid = $function($socketClient);
-			}
+			call_user_func($this->connectionHandler, $socketClient);
 
 			if (! $childPid) {
 				// force child process to exit from loop
