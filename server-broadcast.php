@@ -3,12 +3,12 @@
 /**
  * Check dependencies
  */
-if( ! extension_loaded('sockets' ) ) {
+if (! extension_loaded('sockets')) {
 	echo "This example requires sockets extension (http://www.php.net/manual/en/sockets.installation.php)\n";
 	exit(-1);
 }
 
-if( ! extension_loaded('pcntl' ) ) {
+if (! extension_loaded('pcntl')) {
 	echo "This example requires PCNTL extension (http://www.php.net/manual/en/pcntl.installation.php)\n";
 	exit(-1);
 }
@@ -16,7 +16,7 @@ if( ! extension_loaded('pcntl' ) ) {
 /**
  * Connection handler
  */
-function onConnect( $client )
+function onConnect($client)
 {
 	$pid = pcntl_fork();
 
@@ -26,7 +26,7 @@ function onConnect( $client )
 		return $pid;
 	}
 
-	printf( "[%s] Connected at port %d\n", $client->getAddress(), $client->getPort() );
+	printf("[%s] Connected at port %d\n", $client->getAddress(), $client->getPort());
 
 	$client->connected();
 
@@ -37,17 +37,17 @@ function onConnect( $client )
 		if( $read == '' ) {
 			break;
 		}
-		$client->sendBroadcast( $read );
+		$client->sendBroadcast($read);
 	}
 
 	$client->disconnected();
 
-	printf( "[%s] Disconnected\n", $client->getAddress() );
+	printf("[%s] Disconnected\n", $client->getAddress());
 }
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'autoload.php';
 
 $server = new \shgysk8zer0\Sockets\SocketServerBroadcast();
 $server->init();
-$server->setConnectionHandler( 'onConnect' );
+$server->setConnectionHandler('onConnect');
 $server->listen();

@@ -17,16 +17,15 @@ class SocketException extends \Exception
 		self::CANT_ACCEPT => 'Can\'t accept connections: "%s"',
 	);
 
-	public function __construct( $code, $params = false )
+	public function __construct($code, $params = false)
 	{
-		if( $params ) {
-			$args = array( $this->messages[ $code ], $params );
-			$message = call_user_func_array('sprintf', $args );
-		}
-		else {
-			$message = $this->messages[ $code ];
+		if($params) {
+			$args = array($this->messages[ $code ], $params);
+			$message = call_user_func_array('sprintf', $args);
+		} else {
+			$message = $this->messages[$code];
 		}
 
-		parent::__construct( $message, $code );
+		parent::__construct($message, $code);
 	}
 }

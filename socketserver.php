@@ -11,7 +11,7 @@ class SocketServer
 	protected $_listenLoop;
 	protected $connectionHandler;
 
-	public function __construct( $port = 4444, $address = '127.0.0.1' )
+	public function __construct($port = 4444, $address = '127.0.0.1')
 	{
 		$this->address = $address;
 		$this->port = $port;
@@ -38,14 +38,14 @@ class SocketServer
 
 	private function _bindSocket()
 	{
-		if( socket_bind($this->sockServer, $this->address, $this->port) === false ) {
+		if (socket_bind($this->sockServer, $this->address, $this->port) === false) {
 			throw new SocketException(
 				SocketException::CANT_BIND_SOCKET,
-				socket_strerror(socket_last_error( $this->sockServer ) ) );
+				socket_strerror(socket_last_error($this->sockServer)));
 		}
 	}
 
-	public function setConnectionHandler( $handler )
+	public function setConnectionHandler(Callable $handler)
 	{
 		$this->connectionHandler = $handler;
 	}
@@ -55,40 +55,40 @@ class SocketServer
 		if( socket_listen($this->sockServer, 5) === false) {
 			throw new SocketException(
 				SocketException::CANT_BIND_SOCKET,
-				socket_strerror(socket_last_error( $this->sockServer ) ) );
+				socket_strerror(socket_last_error($this->sockServer)));
 		}
 
 		$this->_listenLoop = true;
 		$this->beforeServerLoop();
 		$this->serverLoop();
 
-		socket_close( $this->sockServer );
+		socket_close($this->sockServer);
 	}
 
 	protected function beforeServerLoop()
 	{
-		printf( "Listening on %s:%d...\n", $this->address, $this->port );
+		printf("Listening on %s:%d...\n", $this->address, $this->port);
 	}
 
 	protected function serverLoop()
 	{
-		while( $this->_listenLoop ) {
-			if( ( $client = @socket_accept( $this->sockServer ) ) === false ) {
+		while ($this->_listenLoop) {
+			if (($client = @socket_accept($this->sockServer)) === false) {
 				throw new SocketException(
 						SocketException::CANT_ACCEPT,
-						socket_strerror(socket_last_error( $this->sockServer ) ) );
+						socket_strerror(socket_last_error($this->sockServer)));
 				continue;
 			}
 
-			$socketClient = new SocketClient( $client );
+			$socketClient = new SocketClient($client);
 
-			if( is_array( $this->connectionHandler ) ) {
+			if (is_array($this->connectionHandler)) {
 				$object = $this->connectionHandler[0];
 				$method = $this->connectionHandler[1];
-				$object->$method( $socketClient );
+				$object->$method($socketClient);
 			} else {
 				$function = $this->connectionHandler;
-				$function( $socketClient );
+				$function($socketClient);
 			}
 		}
 	}

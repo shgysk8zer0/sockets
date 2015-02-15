@@ -9,7 +9,7 @@ class SocketClient
 	private $address;
 	private $port;
 
-	public function __construct( $connection )
+	public function __construct($connection)
 	{
 		$address = '';
 		$port = '';
@@ -19,14 +19,14 @@ class SocketClient
 		$this->connection = $connection;
 	}
 
-	public function send( $message )
+	public function send($message)
 	{
 		socket_write($this->connection, $message, strlen($message));
 	}
 
 	public function read($len = 1024)
 	{
-		if ( ( $buf = @socket_read( $this->connection, $len, PHP_BINARY_READ  ) ) === false ) {
+		if (($buf = @socket_read($this->connection, $len, PHP_BINARY_READ)) === false) {
 				return null;
 		}
 
@@ -45,7 +45,7 @@ class SocketClient
 
 	public function close()
 	{
-		socket_shutdown( $this->connection );
-		socket_close( $this->connection );
+		socket_shutdown($this->connection);
+		socket_close($this->connection);
 	}
 }

@@ -6,20 +6,20 @@ class SocketClientBroadcast extends SocketClient
 
 	protected $server;
 
-	public function __construct( $connection, SocketServerBroadcast $server )
+	public function __construct($connection, SocketServerBroadcast $server)
 	{
-		parent::__construct( $connection );
+		parent::__construct($connection);
 		$this->server = $server;
 	}
 
 	public function sendBroadcast($message)
 	{
-		$this->server->broadcast( array( 'data' => $message, 'type' => 'msg' ) );
+		$this->server->broadcast(array('data' => $message, 'type' => 'msg'));
 	}
 
 	public function disconnected()
 	{
-		$this->server->broadcast( array( 'type' => 'disc' ) );
+		$this->server->broadcast(array( 'type' => 'disc'));
 		$this->close();
 	}
 
@@ -27,7 +27,7 @@ class SocketClientBroadcast extends SocketClient
 	{
 		// don't need this file open in child processes
 		unset($this->server->pipe);
-		$this->server->broadcast( array( 'data' => "Connected\n", 'type' => 'msg' ) );
+		$this->server->broadcast(array( 'data' => "Connected\n", 'type' => 'msg'));
 	}
 
 }
