@@ -18,35 +18,35 @@ if( ! extension_loaded('pcntl' ) ) {
  */
 function onConnect( $client ) {
 	$pid = pcntl_fork();
-	
+
 	if ($pid == -1) {
 		 die('could not fork');
 	} else if ($pid) {
 		return $pid;
 	}
-	
+
 	printf( "[%s] Connected at port %d\n", $client->getAddress(), $client->getPort() );
-	
+
 	$client->connected();
-	
+
 	$read = '';
 	while( true ) {
-		
+
 		$read = $client->read();
 		if( $read == '' ) {
 			break;
 		}
 		$client->sendBroadcast( $read );
 	}
-	
+
 	$client->disconnected();
-	
+
 	printf( "[%s] Disconnected\n", $client->getAddress() );
 }
 
-require "sock/SocketServerBroadcast.php";
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'autoload.php';
 
-$server = new \Sock\SocketServerBroadcast();
+$server = new \shgysk8zer0\Sockets\SocketServerBroadcast();
 $server->init();
 $server->setConnectionHandler( 'onConnect' );
 $server->listen();

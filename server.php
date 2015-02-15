@@ -18,17 +18,17 @@ if( ! extension_loaded('pcntl' ) ) {
  */
 function onConnect( $client ) {
 	$pid = pcntl_fork();
-	
+
 	if ($pid == -1) {
 		 die('could not fork');
 	} else if ($pid) {
 		// parent process
 		return;
 	}
-	
+
 	$read = '';
 	printf( "[%s] Connected at port %d\n", $client->getAddress(), $client->getPort() );
-	
+
 	while( true ) {
 		$read = $client->read();
 		if( $read != '' ) {
@@ -37,7 +37,7 @@ function onConnect( $client ) {
 		else {
 			break;
 		}
-		
+
 		if( preg_replace( '/[^a-z]/', '', $read ) == 'exit' ) {
 			break;
 		}
@@ -51,12 +51,12 @@ function onConnect( $client ) {
 	}
 	$client->close();
 	printf( "[%s] Disconnected\n", $client->getAddress() );
-	
+
 }
 
-require "sock/SocketServer.php";
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'autoload.php';
 
-$server = new \Sock\SocketServer();
+$server = new shgysk8zer0\Sockets\SocketServer();
 $server->init();
 $server->setConnectionHandler( 'onConnect' );
 $server->listen();
