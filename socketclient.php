@@ -9,7 +9,8 @@ class SocketClient
 	private $address;
 	private $port;
 
-	public function __construct( $connection ) {
+	public function __construct( $connection )
+	{
 		$address = '';
 		$port = '';
 		socket_getsockname($connection, $address, $port);
@@ -18,11 +19,13 @@ class SocketClient
 		$this->connection = $connection;
 	}
 
-	public function send( $message ) {
+	public function send( $message )
+	{
 		socket_write($this->connection, $message, strlen($message));
 	}
 
-	public function read($len = 1024) {
+	public function read($len = 1024)
+	{
 		if ( ( $buf = @socket_read( $this->connection, $len, PHP_BINARY_READ  ) ) === false ) {
 				return null;
 		}
@@ -30,15 +33,18 @@ class SocketClient
 		return $buf;
 	}
 
-	public function getAddress() {
+	public function getAddress()
+	{
 		return $this->address;
 	}
 
-	public function getPort() {
+	public function getPort()
+	{
 		return $this->port;
 	}
 
-	public function close() {
+	public function close()
+	{
 		socket_shutdown( $this->connection );
 		socket_close( $this->connection );
 	}

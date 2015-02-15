@@ -16,7 +16,8 @@ if( ! extension_loaded('pcntl' ) ) {
 /**
  * Connection handler
  */
-function onConnect( $client ) {
+function onConnect( $client )
+{
 	$pid = pcntl_fork();
 
 	if ($pid == -1) {

@@ -12,7 +12,8 @@ class SocketServerBroadcast extends SocketServer
 
 	private $connections = array();
 
-	public function __construct( $port = 4444, $address = '127.0.0.1' ) {
+	public function __construct( $port = 4444, $address = '127.0.0.1' )
+	{
 		parent::__construct( $port, $address );
 		$this->pid = posix_getpid();
 		if(!file_exists(self::PIPENAME)) {
@@ -24,7 +25,8 @@ class SocketServerBroadcast extends SocketServer
 		$this->pipe = fopen(self::PIPENAME, 'r+');
 	}
 
-	public function handleProcess() {
+	public function handleProcess()
+	{
 		$header = fread($this->pipe, 4);
 		$len = $this->bytesToInt( $header );
 
@@ -47,7 +49,8 @@ class SocketServerBroadcast extends SocketServer
 		}
 	}
 
-	public function bytesToInt($char) {
+	public function bytesToInt($char)
+	{
 		$num = ord($char[0]);
 		$num += ord($char[1]) << 8;
 		$num += ord($char[2]) << 16;
@@ -55,13 +58,15 @@ class SocketServerBroadcast extends SocketServer
 		return $num;
 	}
 
-	protected function beforeServerLoop() {
+	protected function beforeServerLoop()
+	{
 		parent::beforeServerLoop();
 		socket_set_nonblock( $this->sockServer );
 		pcntl_signal(SIGUSR1, array($this, 'handleProcess'), true);
 	}
 
-	protected function serverLoop() {
+	protected function serverLoop()
+	{
 		while( $this->_listenLoop ) {
 			if( ( $client = @socket_accept( $this->sockServer ) ) === false ) {
 				$info = array();
@@ -79,8 +84,7 @@ class SocketServerBroadcast extends SocketServer
 				$object = $this->connectionHandler[0];
 				$method = $this->connectionHandler[1];
 				$childPid = $object->$method( $socketClient );
-			}
-			else {
+			} else {
 				$function = $this->connectionHandler;
 				$childPid = $function( $socketClient );
 			}
@@ -95,7 +99,8 @@ class SocketServerBroadcast extends SocketServer
 
 	}
 
-	public function broadcast( Array $msg ) {
+	public function broadcast( Array $msg )
+	{
 		$msg['pid'] = posix_getpid();
 		$message = serialize( $msg );
 		$f = fopen(self::PIPENAME, 'w+');
@@ -108,7 +113,8 @@ class SocketServerBroadcast extends SocketServer
 		posix_kill($this->pid, SIGUSR1);
 	}
 
-	protected function strlenInBytes($str) {
+	protected function strlenInBytes($str)
+	{
 		$len = strlen($str);
 		$chars = chr( $len & 0xFF );
 		$chars .= chr( ($len >> 8 ) & 0xFF );

@@ -16,7 +16,8 @@ if( ! extension_loaded('pcntl' ) ) {
 /**
  * Connection handler
  */
-function onConnect( $client ) {
+function onConnect( $client )
+{
 	$pid = pcntl_fork();
 
 	if ($pid == -1) {
@@ -33,8 +34,7 @@ function onConnect( $client ) {
 		$read = $client->read();
 		if( $read != '' ) {
 			$client->send( '[' . date( DATE_RFC822 ) . '] ' . $read  );
-		}
-		else {
+		} else {
 			break;
 		}
 
@@ -44,8 +44,7 @@ function onConnect( $client ) {
 		if( $read === null ) {
 			printf( "[%s] Disconnected\n", $client->getAddress() );
 			return false;
-		}
-		else {
+		} else {
 			printf( "[%s] recieved: %s", $client->getAddress(), $read );
 		}
 	}
