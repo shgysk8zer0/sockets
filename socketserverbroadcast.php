@@ -1,19 +1,17 @@
 <?php
 
-namespace Sock;
+namespace shgysk8zer0\Sockets;
 
-require_once "SocketServer.php";
-require_once "SocketClientBroadcast.php";
-
-class SocketServerBroadcast extends SocketServer {
+class SocketServerBroadcast extends SocketServer
+{
 
 	const PIPENAME = '/tmp/broadcastserver.pid';
-	
+
 	protected $pid;
 	public $pipe;
-	
+
 	private $connections = array();
-	
+
 	public function __construct( $port = 4444, $address = '127.0.0.1' ) {
 		parent::__construct( $port, $address );
 		$this->pid = posix_getpid();
@@ -25,13 +23,13 @@ class SocketServerBroadcast extends SocketServer {
 		}
 		$this->pipe = fopen(self::PIPENAME, 'r+');
 	}
-	
+
 	public function handleProcess() {
 		$header = fread($this->pipe, 4);
 		$len = $this->bytesToInt( $header );
-		
+
 		$message = unserialize( fread( $this->pipe, $len ) );
-		
+
 		if( $message['type'] == 'msg' ) {
 			$client = $this->connections[ $message['pid'] ];
 			$msg = sprintf('[%s] (%d):%s', $client->getAddress(), $message['pid'], $message['data'] );
@@ -40,7 +38,7 @@ class SocketServerBroadcast extends SocketServer {
 				if( $pid == $message['pid'] ) {
 					continue;
 				}
-				
+
 				$conn->send( $msg );
 			}
 		}
@@ -48,7 +46,7 @@ class SocketServerBroadcast extends SocketServer {
 			unset( $this->connections[ $message['pid'] ] );
 		}
 	}
-	
+
 	public function bytesToInt($char) {
 		$num = ord($char[0]);
 		$num += ord($char[1]) << 8;
@@ -56,13 +54,13 @@ class SocketServerBroadcast extends SocketServer {
 		$num += ord($char[3]) << 24;
 		return $num;
 	}
-	
+
 	protected function beforeServerLoop() {
 		parent::beforeServerLoop();
 		socket_set_nonblock( $this->sockServer );
 		pcntl_signal(SIGUSR1, array($this, 'handleProcess'), true);
 	}
-	
+
 	protected function serverLoop() {
 		while( $this->_listenLoop ) {
 			if( ( $client = @socket_accept( $this->sockServer ) ) === false ) {
@@ -74,9 +72,9 @@ class SocketServerBroadcast extends SocketServer {
 				}
 				continue;
 			}
-				
+
 			$socketClient = new SocketClientBroadcast( $client, $this );
-			
+
 			if( is_array( $this->connectionHandler ) ) {
 				$object = $this->connectionHandler[0];
 				$method = $this->connectionHandler[1];
@@ -86,17 +84,17 @@ class SocketServerBroadcast extends SocketServer {
 				$function = $this->connectionHandler;
 				$childPid = $function( $socketClient );
 			}
-			
+
 			if( ! $childPid ) {
 				// force child process to exit from loop
-				return;		
+				return;
 			}
-			
+
 			$this->connections[ $childPid ] = $socketClient;
 		}
-		
+
 	}
-	
+
 	public function broadcast( Array $msg ) {
 		$msg['pid'] = posix_getpid();
 		$message = serialize( $msg );
